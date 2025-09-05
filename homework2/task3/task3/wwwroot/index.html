@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="folder">
+      <div class="container">
+        <form id="calculator" name="calculator">
+          <input id="text" name="text" value="5 + 3 * (2 + 5) + Pow(2, 3)" />
+          <button type="button" id="pow" class="opt" name="pow">Pow</button>
+          <button type="button" id="divide" class="opt" name="divide">/</button>
+          <button type="button" id="multiply" class="opt" name="multiply">*</button>
+          <button type="button" id="reset" name="reset">C</button>
+          <button type="button" id="seven" class="opt" name="seven">7</button>
+          <button type="button" id="eight" class="opt" name="eight">8</button>
+          <button type="button" id="nine" class="opt" name="nine">9</button>
+          <button type="button" id="minus" class="opt" name="minus">-</button>
+          <button type="button" id="four" class="opt" name="four">4</button>
+          <button type="button" id="five" class="opt" name="five">5</button>
+          <button type="button" id="six" class="opt" name="six">6</button>
+          <button type="button" id="plus" class="opt" name="plus">+</button>
+          <button type="button" id="one" class="opt" name="one">1</button>
+          <button type="button" id="two" class="opt" name="two">2</button>
+          <button type="button" id="three" class="opt" name="three">3</button
+          ><button type="button" id="dot" class="opt" name="dot">.</button>
+          <button type="button" id="zero" class="opt" name="zero">0</button>
+          <button type="button" id="comma" class="opt" name="comma">,</button>
+          <button
+            type="button"
+            id="left_parenthesis"
+            class="opt"
+            name="left_parenthesis">(</button>
+          <button
+            type="button"
+            id="right_parenthesis"
+            class="opt"
+            name="right_parenthesis"
+          >)</button>
+          <button id="submit" name="submit" type="submit" value="enter"> = </button>
+          <!---->
+        </form>
+      </div>
+    </div>
+    <script>
+      document.forms['calculator'].addEventListener('submit', async (btn) => {
+        btn.preventDefault();
+        const el = document.getElementById('text');
+
+        const response = await fetch(
+          '/calculate?expr=' + encodeURIComponent(el.value),
+          {
+            method: 'GET',
+            headers: { Accept: 'text/plain' },
+          }
+        );
+        el.value = await response.text();
+      });
+
+      const buttons = document.getElementsByClassName('opt');
+      Array.from(buttons).forEach((btn) => {
+        if (btn.id != 'submit')
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.forms['calculator'].elements['text'].value +=
+              btn.textContent;
+          });
+      });
+
+        document.getElementById("reset").addEventListener("click", e => { document.getElementById("text").value = ""; });
+    </script>
+  </body>
+</html>
