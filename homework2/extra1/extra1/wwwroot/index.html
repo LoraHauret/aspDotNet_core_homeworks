@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <form name="weather" id="weather">
+        <label for="country">страна</label>
+        <select name="country">
+            <option value="" selected hidden disabled>выберите страну</option>
+        </select>
+        <label for="city">город</label>
+        <select name="city">
+            <option value="" selected hidden disabled>выберите город</option>
+        </select>
+        <button type="submit" class="submit">показать</button>
+    </form>
+    <div id="resultData">
+        <table id="tbl" name="tbl"></table>
+    </div>
+
+    <script>
+        const form = document.forms["weather"];
+        const countrySelect = form.elements["country"];
+
+        document.addEventListener("DOMContentLoaded", async e => {
+            const response = await fetch("/countries",
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+            if (response.ok) {
+                const countries = await response.json();
+                
+                Array.from(countries).forEach(c => {
+                    const option = document.createElement("option");
+                    option.textContent = c;
+                    countrySelect.appendChild(option);
+                });               
+            }
+        });
+
+        countrySelect.addEventListener("change", async e => {
+            // alert(countrySelect.value.toString());
+            const response = await fetch("/cities?country="+ encodeURIComponent(countrySelect.value.toString()),
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+            if (response.ok) {
+                const cities = await response.json();
+                const citiesSelect = form["city"];
+
+                citiesSelect.innerHTML = "";
+
+                Array.from(cities).forEach(c => {
+                    const option = document.createElement("option");
+                    option.textContent = c;
+                    citiesSelect.appendChild(option);
+                });
+            }
+        });
+
+        function createTd(text) {
+            const td = document.createElement("td");
+            td.textContent = text;
+            return td;
+        }
+
+        form.addEventListener("submit", async e => {
+            e.preventDefault();
+            const city = form["city"].value.toString();
+            const country = form["country"].value.toString();
+
+            const response = await fetch(`/submit?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}`,
+                {
+                    method: "GET",
+                    headers: {"Accept":"application/json"}
+                });
+
+            if (response.ok) {
+                // забираю jsonом
+                const dataJson = await response.json();
+
+                const table = document.getElementById("tbl");
+                table.innerHTML = "";
+
+                const tr = document.createElement("tr");
+
+                tr.appendChild(createTd("temperature C"));
+                tr.appendChild(createTd(dataJson.current.temp_c));
+                table.appendChild(tr);                
+            }
+
+        });
+
+    </script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-direction: column;
+            background-color: rgb(59, 31, 31);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 30%;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid aquamarine;
+            padding: 30px;
+            margin-top: 5%;
+            background-color:teal;
+        }
+        button.submit
+        {
+            margin-top: 4%;
+            background-color:lightblue;
+            height: 40px;
+            width: 50%;
+            border-radius: 10px;
+            padding: 10px 0 10px 0;
+        }
+        button.submit:hover
+        {
+            background-color:cornflowerblue;
+            width:51%;
+            height: 104%;
+            color:white;
+            font-weight:700;
+        }
+        #tbl, #tbl tr td{
+            margin-top: 30px;
+            border: 1px solid aquamarine;
+            color:aliceblue;
+        }
+        #tbl tr td {
+            padding: 7px;
+        }
+    </style>
+</body>
+</html>
